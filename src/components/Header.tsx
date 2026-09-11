@@ -1,8 +1,9 @@
-import React from 'react';
-import { Volume2, HelpCircle } from 'lucide-react';
+import { Volume2, HelpCircle, Sun, Moon, Database } from 'lucide-react';
 import { translations } from '../data/translations';
 import type { Language } from '../data/translations';
 import { playKioskClick } from '../utils/audioSystem';
+
+export type Theme = 'dark' | 'light';
 
 interface HeaderProps {
   lang: Language;
@@ -10,6 +11,10 @@ interface HeaderProps {
   onListenClick: () => void;
   isSpeaking: boolean;
   onHelpClick: () => void;
+  theme: Theme;
+  onThemeToggle: () => void;
+  onRecordsClick: () => void;
+  recordsCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,6 +23,10 @@ export const Header: React.FC<HeaderProps> = ({
   onListenClick,
   isSpeaking,
   onHelpClick,
+  theme,
+  onThemeToggle,
+  onRecordsClick,
+  recordsCount = 0,
 }) => {
   const t = translations[lang];
 
@@ -93,6 +102,35 @@ export const Header: React.FC<HeaderProps> = ({
             English
           </button>
         </div>
+
+        {/* Theme Switcher Button (Black / White mode with smooth Moon/Sun transition) */}
+        <button
+          className={`btn-theme-toggle ${theme}`}
+          onClick={() => {
+            playKioskClick();
+            onThemeToggle();
+          }}
+          title={theme === 'dark' ? 'Switch to White Theme (Light Mode) [Key: D]' : 'Switch to Black Theme (Dark Mode) [Key: D]'}
+          aria-label={theme === 'dark' ? 'Switch to White Theme' : 'Switch to Black Theme'}
+        >
+          <div className="theme-icon-box">
+            <Sun className="theme-svg sun-svg" size={20} />
+            <Moon className="theme-svg moon-svg" size={20} />
+          </div>
+        </button>
+
+        {/* Local Database Records Button */}
+        <button
+          className="btn-records"
+          onClick={() => {
+            playKioskClick();
+            onRecordsClick();
+          }}
+          title={lang === 'hi' ? 'स्थानीय डेटाबेस - दर्ज शिकायतें [Key: R]' : 'Local Database - Stored Grievances [Key: R]'}
+        >
+          <Database size={16} />
+          <span>{recordsCount > 0 ? `${recordsCount}` : 'DB'}</span>
+        </button>
 
         {/* Help Circle Button */}
         <button

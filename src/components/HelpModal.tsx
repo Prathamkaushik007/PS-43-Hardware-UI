@@ -14,7 +14,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ lang, onClose }) => {
   return (
     <div className="studio-overlay">
       <div className="help-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
+        <div className="help-header-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '18px' }}>
             <HelpCircle size={24} />
             <span>{isHi ? 'कियोस्क सहायता मार्गदर्शिका' : 'Kiosk Citizen Help Guide'}</span>
@@ -85,8 +85,8 @@ export const HelpModal: React.FC<HelpModalProps> = ({ lang, onClose }) => {
         </div>
 
         {/* Hardware Keypad Guide */}
-        <div style={{ background: '#1e293b', borderRadius: '12px', padding: '14px 18px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', marginBottom: '8px' }}>
+        <div className="help-shortcuts-box" style={{ borderRadius: '12px', padding: '14px 18px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>
             ⌨️ {isHi ? 'कियोस्क भौतिक कीपैड शॉर्टकट:' : 'Kiosk Hardware Keypad Shortcuts:'}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px', color: '#94a3b8' }}>
@@ -96,6 +96,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ lang, onClose }) => {
             <div><span className="footer-key-badge">C</span> or <span className="footer-key-badge">Esc</span> : Cancel</div>
             <div><span className="footer-key-badge">L</span> : Listen Guide</div>
             <div><span className="footer-key-badge">H</span> : Help</div>
+            <div><span className="footer-key-badge">D</span> : Theme Toggle</div>
           </div>
         </div>
 

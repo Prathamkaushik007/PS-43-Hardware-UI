@@ -2,13 +2,13 @@
 
 let audioCtx: AudioContext | null = null;
 
-function getAudioContext(): AudioContext {
+export function getAudioContext(): AudioContext {
   if (!audioCtx) {
     const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     audioCtx = new AudioCtxClass();
   }
   if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+    audioCtx.resume().catch(() => {});
   }
   return audioCtx;
 }
@@ -87,53 +87,127 @@ export function playBeep(pitch = 880): void {
   }
 }
 
-// Text to speech (TTS) helper
+// ==========================================================
+// ROBUST TEXT-TO-SPEECH (TTS) ENGINE
+// ==========================================================
 let currentUtterance: SpeechSynthesisUtterance | null = null;
+let cachedVoices: SpeechSynthesisVoice[] = [];
+
+function loadVoices(): SpeechSynthesisVoice[] {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    const list = window.speechSynthesis.getVoices();
+    if (list && list.length > 0) {
+      cachedVoices = list;
+    }
+  }
+  return cachedVoices;
+}
+
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    loadVoices();
+  };
+}
+
+function findBestVoice(lang: 'en' | 'hi'): SpeechSynthesisVoice | null {
+  const voices = loadVoices();
+  if (voices.length === 0) return null;
+
+  if (lang === 'hi') {
+    // 1. Exact Hindi
+    const hiVoice = voices.find(v => v.lang.toLowerCase() === 'hi-in' || v.lang.toLowerCase().startsWith('hi'));
+    if (hiVoice) return hiVoice;
+
+    // 2. Name contains Hindi or India
+    const hiNamedVoice = voices.find(v => /hindi|india|kalpana|heera/i.test(v.name));
+    if (hiNamedVoice) return hiNamedVoice;
+
+    // Fallback: any voice
+    return voices.find(v => v.default) || voices[0];
+  } else {
+    // English priority: en-IN -> en-US -> en-GB -> any English
+    const enInVoice = voices.find(v => v.lang.toLowerCase() === 'en-in');
+    if (enInVoice) return enInVoice;
+
+    const enUsVoice = voices.find(v => v.lang.toLowerCase() === 'en-us' || /david|zira|george|susan/i.test(v.name));
+    if (enUsVoice) return enUsVoice;
+
+    const enGbVoice = voices.find(v => v.lang.toLowerCase() === 'en-gb');
+    if (enGbVoice) return enGbVoice;
+
+    const anyEn = voices.find(v => v.lang.toLowerCase().startsWith('en'));
+    if (anyEn) return anyEn;
+
+    return voices.find(v => v.default) || voices[0];
+  }
+}
 
 export function speakText(text: string, lang: 'en' | 'hi' = 'en', onEnd?: () => void): void {
-  if (!('speechSynthesis' in window)) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     if (onEnd) onEnd();
     return;
   }
 
-  window.speechSynthesis.cancel();
+  // Wake up AudioContext if needed
+  getAudioContext();
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  currentUtterance = utterance;
+  try {
+    // Cancel any previous speech
+    window.speechSynthesis.cancel();
+  } catch {}
 
-  utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
-  utterance.rate = 0.95;
-  utterance.pitch = 1.05;
+  // Microtask delay prevents Chrome cancellation collision
+  setTimeout(() => {
+    try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
 
-  // Find optimal voice if available
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length > 0) {
-    const voice = voices.find(v => (lang === 'hi' ? v.lang.includes('hi') : v.lang.includes('en-IN') || v.lang.includes('en-GB') || v.lang.includes('en-US')));
-    if (voice) {
-      utterance.voice = voice;
+      const utterance = new SpeechSynthesisUtterance(text);
+      currentUtterance = utterance;
+
+      const bestVoice = findBestVoice(lang);
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+        utterance.lang = bestVoice.lang;
+      } else {
+        utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+      }
+
+      utterance.rate = 0.96;
+      utterance.pitch = 1.02;
+
+      let hasEnded = false;
+      const finish = () => {
+        if (!hasEnded) {
+          hasEnded = true;
+          currentUtterance = null;
+          if (onEnd) onEnd();
+        }
+      };
+
+      utterance.onend = finish;
+      utterance.onerror = finish;
+
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('SpeechSynthesis error:', e);
+      currentUtterance = null;
+      if (onEnd) onEnd();
     }
-  }
-
-  utterance.onend = () => {
-    currentUtterance = null;
-    if (onEnd) onEnd();
-  };
-
-  utterance.onerror = () => {
-    currentUtterance = null;
-    if (onEnd) onEnd();
-  };
-
-  window.speechSynthesis.speak(utterance);
+  }, 30);
 }
 
 export function stopSpeaking(): void {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
   }
   currentUtterance = null;
 }
 
 export function isSpeaking(): boolean {
-  return Boolean(currentUtterance && window.speechSynthesis && window.speechSynthesis.speaking);
+  return Boolean(currentUtterance && typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking);
 }

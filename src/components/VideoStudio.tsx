@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Square, X, RefreshCw, Send, AlertCircle } from 'lucide-react';
+import { Camera, Square, X, RefreshCw, Send, AlertCircle, Mic, Volume2 } from 'lucide-react';
 import { translations } from '../data/translations';
 import type { Language } from '../data/translations';
 import { useSpeechRecognition } from '../utils/useSpeechRecognition';
@@ -21,37 +21,62 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   const [isRecording, setIsRecording] = useState<boolean>(true);
   const [hasWebcam, setHasWebcam] = useState<boolean>(false);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [isMirrored, setIsMirrored] = useState<boolean>(() => {
+    const saved = localStorage.getItem('kiosk_camera_mirrored');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const toggleMirror = () => {
+    playKioskClick();
+    setIsMirrored(prev => {
+      const next = !prev;
+      localStorage.setItem('kiosk_camera_mirrored', String(next));
+      return next;
+    });
+  };
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  // Speech-to-text hook
-  const { transcript } = useSpeechRecognition(isRecording, lang);
+  // Speech-to-text hook with continuous listening
+  const { transcript, isRecognizing } = useSpeechRecognition(isRecording, lang);
 
-  // Initialize webcam
+  // Initialize webcam & microphone
   useEffect(() => {
-    let active = true;
+    let unmounted = false;
 
-    async function setupCamera() {
+    async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
-          audio: true
-        });
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+            audio: true
+          });
+        } catch {
+          // Fallback if specific audio or resolution constraints fail
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          } catch {
+            // Fallback if mic is unavailable or blocked
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          }
+        }
 
-        if (!active) {
-          stream.getTracks().forEach(tr => tr.stop());
+        if (unmounted) {
+          stream.getTracks().forEach(t => t.stop());
           return;
         }
 
         streamRef.current = stream;
+        setHasWebcam(true);
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play().catch(() => {});
         }
-        setHasWebcam(true);
 
         // Setup MediaRecorder
         try {
@@ -60,7 +85,9 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
           chunksRef.current = [];
 
           recorder.ondataavailable = (e) => {
-            if (e.data.size > 0) chunksRef.current.push(e.data);
+            if (e.data && e.data.size > 0) {
+              chunksRef.current.push(e.data);
+            }
           };
 
           recorder.onstop = () => {
@@ -70,25 +97,40 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
           };
 
           recorder.start(500);
-        } catch (e) {
-          console.debug('MediaRecorder error:', e);
+        } catch (recErr) {
+          console.warn('MediaRecorder error:', recErr);
         }
       } catch (err) {
-        console.warn('Webcam permission denied or not available, using simulated kiosk feed:', err);
-        setHasWebcam(false);
+        console.error('Webcam initialization failed:', err);
+        if (!unmounted) {
+          setHasWebcam(false);
+        }
       }
     }
 
-    setupCamera();
+    startCamera();
 
     return () => {
-      active = false;
+      unmounted = true;
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        try { mediaRecorderRef.current.stop(); } catch {}
+      }
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(tr => tr.stop());
+        streamRef.current.getTracks().forEach(t => t.stop());
         streamRef.current = null;
       }
     };
   }, []);
+
+  // Re-sync video element whenever hasWebcam or isRecording updates
+  useEffect(() => {
+    if (hasWebcam && isRecording && videoRef.current && streamRef.current) {
+      if (videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+      }
+      videoRef.current.play().catch(() => {});
+    }
+  }, [hasWebcam, isRecording]);
 
   // 60-second countdown timer
   useEffect(() => {
@@ -118,9 +160,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       try {
         mediaRecorderRef.current.stop();
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
   };
 
@@ -130,23 +170,27 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
     setSecondsRemaining(60);
     setIsRecording(true);
 
-    if (streamRef.current && videoRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(() => {});
+    if (streamRef.current) {
+      if (videoRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play().catch(() => {});
+      }
 
       try {
+        chunksRef.current = [];
         const recorder = new MediaRecorder(streamRef.current);
         mediaRecorderRef.current = recorder;
-        chunksRef.current = [];
         recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) chunksRef.current.push(e.data);
+          if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
         };
         recorder.onstop = () => {
           const blob = new Blob(chunksRef.current, { type: 'video/webm' });
           setRecordedUrl(URL.createObjectURL(blob));
         };
         recorder.start(500);
-      } catch {}
+      } catch (err) {
+        console.warn('Retake recorder error:', err);
+      }
     }
   };
 
@@ -163,12 +207,14 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
         if (isRecording) handleStop();
       } else if (key === 'c' || key === 'escape') {
         onCancel();
+      } else if (key === 'f') {
+        toggleMirror();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRecording]);
+  }, [isRecording, isMirrored]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -192,6 +238,12 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
                 <span>REC LIVE</span>
               </div>
             )}
+            {isRecording && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#38bdf8', fontWeight: 700, marginLeft: '6px' }}>
+                <Mic size={14} />
+                <span>MIC LIVE</span>
+              </div>
+            )}
           </div>
 
           <div className={`countdown-timer ${secondsRemaining <= 10 && isRecording ? 'warning' : ''}`}>
@@ -201,45 +253,76 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
 
         {/* Video Screen Area */}
         <div className="video-stage">
+          {/* Flip / Mirror Button for instant one-click toggle */}
+          <button
+            className="btn-flip-camera"
+            onClick={toggleMirror}
+            title="Toggle Horizontal Flip (Mirror / Normal) [Key: F]"
+          >
+            <RefreshCw size={13} />
+            <span>{isMirrored ? (lang === 'hi' ? 'मिरर: चालू [F]' : 'Mirror: ON [F]') : (lang === 'hi' ? 'मिरर: बंद [F]' : 'Mirror: OFF [F]')}</span>
+          </button>
+
           {isRecording ? (
             hasWebcam ? (
-              <video ref={videoRef} autoPlay playsInline muted className="video-element" />
+              <>
+                {/* Real-time live camera feed with dynamic mirror toggle */}
+                <video
+                  ref={(el) => {
+                    videoRef.current = el;
+                    if (el && streamRef.current && el.srcObject !== streamRef.current) {
+                      el.srcObject = streamRef.current;
+                      el.play().catch(e => console.debug('Live video play:', e));
+                    }
+                  }}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`video-element ${isMirrored ? 'mirrored' : ''}`}
+                />
+
+                <div className="camera-guide-frame">
+                  <div className="camera-guide-text">
+                    👤 Position face & grievance document within frame
+                  </div>
+                </div>
+              </>
             ) : (
+              /* Fallback while camera is acquiring */
               <div className="simulated-camera">
                 <div className="sim-avatar-circle">
                   <Camera size={48} />
                 </div>
-                <div style={{ textAlign: 'center' }}>
+                <div style={{ textAlign: 'center', padding: '0 20px' }}>
                   <p style={{ fontWeight: 700, color: '#f8fafc', fontSize: '16px' }}>
                     {t.speakNowPrompt}
                   </p>
-                  <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                    [Hardware Camera Simulation Mode Active]
+                  <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px' }}>
+                    [Connecting to camera...]
                   </p>
                 </div>
               </div>
             )
           ) : (
+            /* Stopped state: preview playback */
             recordedUrl ? (
-              <video src={recordedUrl} controls autoPlay className="video-element" />
+              <video
+                src={recordedUrl}
+                controls
+                autoPlay
+                playsInline
+                className={`video-element ${isMirrored ? 'mirrored' : ''}`}
+              />
             ) : (
               <div className="simulated-camera">
                 <div className="sim-avatar-circle" style={{ borderColor: '#10b981', color: '#34d399' }}>
-                  <Camera size={48} />
+                  <Volume2 size={48} />
                 </div>
                 <p style={{ fontWeight: 700, color: '#f8fafc' }}>
                   Video recorded successfully! Ready to submit.
                 </p>
               </div>
             )
-          )}
-
-          {isRecording && (
-            <div className="camera-guide-frame">
-              <div className="camera-guide-text">
-                👤 Position face & grievance document within frame
-              </div>
-            </div>
           )}
         </div>
 
@@ -249,9 +332,12 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
             <div className="transcript-label">
               <AlertCircle size={14} />
               <span>{t.speechRecognized}</span>
+              {isRecording && isRecognizing && (
+                <span style={{ fontSize: '10px', color: '#10b981', marginLeft: '6px' }}>● Listening</span>
+              )}
             </div>
             <span style={{ fontSize: '11px', color: '#64748b' }}>
-              {isRecording ? 'Listening in real time...' : 'Transcribed text'}
+              {isRecording ? 'Listening in real time (Hindi / English)...' : 'Transcribed text'}
             </span>
           </div>
           <div className="transcript-content">
@@ -267,12 +353,12 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
         <div className="studio-controls">
           {isRecording ? (
             <>
-              <button className="btn-ctrl btn-ctrl-cancel" onClick={onCancel}>
+              <button className="btn-ctrl btn-ctrl-cancel" onClick={onCancel} title="Cancel recording (Key: C)">
                 <X size={18} />
                 <span>{t.cancel}</span>
               </button>
 
-              <button className="btn-ctrl btn-ctrl-stop" onClick={handleStop}>
+              <button className="btn-ctrl btn-ctrl-stop" onClick={handleStop} title="Stop recording (Key: S)">
                 <Square size={18} />
                 <span>{t.stopRecording}</span>
               </button>

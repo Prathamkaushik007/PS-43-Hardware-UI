@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Square, X, RefreshCw, Send, AlertCircle } from 'lucide-react';
+import { Mic, Square, X, RefreshCw, Send, AlertCircle, Volume2 } from 'lucide-react';
 import { translations } from '../data/translations';
 import type { Language } from '../data/translations';
 import { useSpeechRecognition } from '../utils/useSpeechRecognition';
@@ -7,7 +7,7 @@ import { playBeep, playKioskClick } from '../utils/audioSystem';
 
 interface AudioStudioProps {
   lang: Language;
-  onFinish: (transcript: string) => void;
+  onFinish: (transcript: string, audioUrl?: string | null) => void;
   onCancel: () => void;
 }
 
@@ -19,6 +19,7 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
   const t = translations[lang];
   const [secondsRemaining, setSecondsRemaining] = useState<number>(60);
   const [isRecording, setIsRecording] = useState<boolean>(true);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -26,23 +27,33 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   // Speech to text hook
-  const { transcript } = useSpeechRecognition(isRecording, lang);
+  const { transcript, isRecognizing } = useSpeechRecognition(isRecording, lang);
 
-  // Setup Web Audio analyser
+  // Setup Web Audio analyser and MediaRecorder
   useEffect(() => {
     let active = true;
 
     async function initAudio() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+
         if (!active) {
           stream.getTracks().forEach(tr => tr.stop());
           return;
         }
         streamRef.current = stream;
 
+        // Setup live audio visualizer
         const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioCtx();
         audioContextRef.current = ctx;
@@ -56,8 +67,35 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
         source.connect(analyser);
 
         drawAudioWave();
+
+        // Setup MediaRecorder for audio playback
+        try {
+          const mimeType = typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus'
+            : typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm')
+            ? 'audio/webm'
+            : '';
+
+          const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+          mediaRecorderRef.current = recorder;
+          chunksRef.current = [];
+
+          recorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+          };
+
+          recorder.onstop = () => {
+            const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+            setRecordedAudioUrl(url);
+          };
+
+          recorder.start(500);
+        } catch (recErr) {
+          console.debug('MediaRecorder for audio error:', recErr);
+        }
       } catch (e) {
-        console.warn('Microphone permission not granted, using simulated audio visualizer:', e);
+        console.warn('Microphone permission not granted, using simulated visualizer:', e);
         drawSimulatedWave();
       }
     }
@@ -175,17 +213,40 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
   const handleStop = () => {
     setIsRecording(false);
     playKioskClick();
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch {}
+    }
   };
 
   const handleRetake = () => {
     playKioskClick();
+    setRecordedAudioUrl(null);
     setSecondsRemaining(60);
     setIsRecording(true);
+
+    if (streamRef.current) {
+      try {
+        const recorder = new MediaRecorder(streamRef.current);
+        mediaRecorderRef.current = recorder;
+        chunksRef.current = [];
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+        };
+        recorder.onstop = () => {
+          const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+          setRecordedAudioUrl(URL.createObjectURL(blob));
+        };
+        recorder.start(500);
+      } catch {}
+    }
   };
 
   const handleSubmit = () => {
     playKioskClick();
-    onFinish(transcript);
+    onFinish(transcript, recordedAudioUrl);
   };
 
   // Physical keyboard listener
@@ -234,21 +295,36 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
 
         {/* Audio Pulse Ring & Waves */}
         <div className="audio-stage">
-          <div className="audio-pulse-ring">
-            {isRecording && (
-              <>
+          {isRecording ? (
+            <>
+              <div className="audio-pulse-ring">
                 <div className="audio-ripple" />
                 <div className="audio-ripple" />
-              </>
-            )}
-            <Mic size={54} color="#ffffff" />
-          </div>
+                <Mic size={54} color="#ffffff" />
+              </div>
 
-          <canvas ref={canvasRef} width={480} height={70} className="waveform-canvas" />
+              <canvas ref={canvasRef} width={480} height={70} className="waveform-canvas" />
 
-          <p style={{ marginTop: '16px', color: '#cbd5e1', fontWeight: 600, fontSize: '15px' }}>
-            {isRecording ? t.speakNowPrompt : 'Voice complaint recorded! Ready to submit.'}
-          </p>
+              <p style={{ marginTop: '16px', color: '#cbd5e1', fontWeight: 600, fontSize: '15px' }}>
+                {t.speakNowPrompt}
+              </p>
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '480px', gap: '16px' }}>
+              <div className="audio-pulse-ring" style={{ width: '80px', height: '80px', background: '#10b981' }}>
+                <Volume2 size={36} color="#ffffff" />
+              </div>
+              <p style={{ color: '#f8fafc', fontWeight: 700, fontSize: '16px' }}>
+                Voice complaint recorded! Click play to verify your voice.
+              </p>
+
+              {recordedAudioUrl && (
+                <div style={{ width: '100%', background: 'rgba(15, 23, 42, 0.8)', padding: '12px 18px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <audio src={recordedAudioUrl} controls autoPlay style={{ width: '100%', outline: 'none' }} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Live Speech Recognition Transcript */}
@@ -257,9 +333,12 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
             <div className="transcript-label" style={{ color: '#60a5fa' }}>
               <AlertCircle size={14} />
               <span>{t.speechRecognized}</span>
+              {isRecording && isRecognizing && (
+                <span style={{ fontSize: '10px', color: '#10b981', marginLeft: '6px' }}>● Listening</span>
+              )}
             </div>
             <span style={{ fontSize: '11px', color: '#64748b' }}>
-              {isRecording ? 'Listening in real time...' : 'Transcribed audio'}
+              {isRecording ? 'Listening in real time (Hindi / English)...' : 'Transcribed audio'}
             </span>
           </div>
           <div className="transcript-content">
@@ -275,12 +354,12 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
         <div className="studio-controls">
           {isRecording ? (
             <>
-              <button className="btn-ctrl btn-ctrl-cancel" onClick={onCancel}>
+              <button className="btn-ctrl btn-ctrl-cancel" onClick={onCancel} title="Cancel recording (Key: C)">
                 <X size={18} />
                 <span>{t.cancel}</span>
               </button>
 
-              <button className="btn-ctrl btn-ctrl-stop" onClick={handleStop}>
+              <button className="btn-ctrl btn-ctrl-stop" onClick={handleStop} title="Stop recording (Key: S)">
                 <Square size={18} />
                 <span>{t.stopRecording}</span>
               </button>

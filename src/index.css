@@ -15,6 +15,19 @@
   --font-main: 'Outfit', 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+[data-theme="light"] {
+  --bg-kiosk: #f8fafc;
+  --bg-card-dark: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-subtle: rgba(15, 23, 42, 0.09);
+  --border-gold: #d97706;
+  --gold-glow: rgba(245, 158, 11, 0.2);
+  --accent-gold: #d97706;
+  --accent-gold-light: #fef3c7;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -32,6 +45,15 @@ html, body {
   color: var(--text-primary);
   font-family: var(--font-main);
   line-height: 1.5;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kiosk-viewport, .kiosk-header, .emblem-box, .lang-switcher, .lang-btn, .btn-listen, .btn-help, .features-bar, .kiosk-footer, .prompt-pill, .kiosk-card {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Background Kiosk Tech Ambient */
@@ -265,6 +287,157 @@ body {
   background: rgba(225, 29, 72, 0.25);
   border-color: #f43f5e;
   transform: scale(1.05);
+}
+
+/* Local DB Records Button */
+.btn-records {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  padding: 8px 13px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-records:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="light"] .btn-records {
+  background: rgba(224, 242, 254, 0.75);
+  border-color: rgba(2, 132, 199, 0.4);
+  color: #0284c7;
+}
+
+[data-theme="light"] .btn-records:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+}
+
+/* Theme Toggle Button (Moon / Sun Switcher) */
+.btn-theme-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: rgba(30, 41, 59, 0.7);
+  color: var(--text-primary);
+  overflow: hidden;
+  user-select: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+.btn-theme-toggle:hover {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.btn-theme-toggle:active {
+  transform: translateY(0) scale(0.94);
+}
+
+/* Dark theme button state (moon glowing in night sky) */
+.btn-theme-toggle.dark {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+}
+
+.btn-theme-toggle.dark:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+}
+
+/* Light theme button state (sun radiant warmth) */
+.btn-theme-toggle.light {
+  background: rgba(254, 243, 199, 0.8);
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+}
+
+.btn-theme-toggle.light:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.5);
+}
+
+/* Theme Icon Box for layered SVG morph */
+.theme-icon-box {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.35s ease,
+              color 0.3s ease;
+}
+
+/* Dark Mode: Moon is visible and centered, Sun is rotated and scaled down */
+.btn-theme-toggle.dark .moon-svg {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+  color: #38bdf8;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.7));
+}
+
+.btn-theme-toggle.dark .sun-svg {
+  transform: rotate(90deg) scale(0.2);
+  opacity: 0;
+  color: #f59e0b;
+  pointer-events: none;
+}
+
+/* Light Mode: Sun is visible and centered, Moon is rotated and scaled down */
+.btn-theme-toggle.light .sun-svg {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+  color: #f59e0b;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.75));
+}
+
+.btn-theme-toggle.light .moon-svg {
+  transform: rotate(-90deg) scale(0.2);
+  opacity: 0;
+  color: #38bdf8;
+  pointer-events: none;
+}
+
+/* Micro animation on hover: playful interactive twist */
+.btn-theme-toggle.dark:hover .moon-svg {
+  transform: rotate(-16deg) scale(1.1);
+}
+
+.btn-theme-toggle.light:hover .sun-svg {
+  transform: rotate(25deg) scale(1.1);
 }
 
 /* Prompt Banner */
@@ -635,7 +808,45 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* mirror */
+  display: block;
+  transform: none;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.video-element.mirrored {
+  transform: scaleX(-1);
+}
+
+.btn-flip-camera {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f8fafc;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-flip-camera:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.btn-flip-camera:active {
+  transform: translateY(0);
 }
 
 /* Simulated Camera Avatar if webcam is disabled */
@@ -1080,3 +1291,256 @@ body {
     display: none !important;
   }
 }
+
+/* ==========================================================
+   WHITE (LIGHT) THEME SPECIFIC STYLES
+========================================================== */
+[data-theme="light"] body {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 10% 90%, rgba(225, 29, 72, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+    linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  color: #0f172a;
+}
+
+[data-theme="light"] .kiosk-header {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .header-main-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .header-sub-title {
+  color: #334155;
+}
+
+[data-theme="light"] .title-separator {
+  color: #cbd5e1;
+}
+
+[data-theme="light"] .emblem-box {
+  background: #fffbeb;
+  border: 1.5px solid rgba(245, 158, 11, 0.6);
+  color: #d97706;
+  box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(245, 158, 11, 0.15);
+}
+
+[data-theme="light"] .hardware-specs-badge {
+  background: rgba(241, 245, 249, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  color: #475569;
+}
+
+[data-theme="light"] .kiosk-online-badge {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #059669;
+}
+
+[data-theme="light"] .btn-listen {
+  background: rgba(254, 243, 199, 0.7);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #b45309;
+}
+
+[data-theme="light"] .btn-listen:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+[data-theme="light"] .btn-listen.active {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+[data-theme="light"] .lang-switcher {
+  background: #f1f5f9;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .lang-btn {
+  color: #64748b;
+}
+
+[data-theme="light"] .lang-btn.active {
+  background: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="light"] .btn-help {
+  background: rgba(254, 226, 226, 0.65);
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  color: #e11d48;
+}
+
+[data-theme="light"] .btn-help:hover {
+  background: rgba(254, 226, 226, 1);
+  border-color: #e11d48;
+}
+
+[data-theme="light"] .prompt-pill {
+  background: rgba(254, 243, 199, 0.9);
+  border: 1.5px solid rgba(245, 158, 11, 0.55);
+  color: #92400e;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.16);
+}
+
+[data-theme="light"] .kiosk-card {
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .card-top-pill {
+  background: rgba(255, 255, 255, 0.94);
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .card-action-pill {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .card-action-pill:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+[data-theme="light"] .features-bar {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #334155;
+  box-shadow: 0 8px 24px -5px rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] .feature-divider {
+  color: #cbd5e1;
+}
+
+[data-theme="light"] .feature-item.highlight {
+  color: #b45309;
+}
+
+[data-theme="light"] .kiosk-footer {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #64748b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .footer-mid {
+  color: #475569;
+}
+
+[data-theme="light"] .footer-key-badge {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .footer-left {
+  color: #059669;
+}
+
+[data-theme="light"] .voice-engine-indicator {
+  color: #0284c7;
+}
+
+/* Modals Light Theme */
+[data-theme="light"] .studio-overlay {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+}
+
+[data-theme="light"] .help-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .help-step-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .step-desc {
+  color: #64748b;
+}
+
+[data-theme="light"] .help-card .help-header-bar {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .help-card .help-shortcuts-box {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .help-card .help-shortcuts-box div:first-child {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .studio-modal {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .studio-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme="light"] .studio-header h2 {
+  color: #0f172a;
+}
+
+[data-theme="light"] .countdown-timer {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .transcript-preview {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .transcript-content {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme="light"] .transcript-placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .studio-controls {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .btn-ctrl-cancel {
+  background: #e2e8f0;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+[data-theme="light"] .btn-ctrl-cancel:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
