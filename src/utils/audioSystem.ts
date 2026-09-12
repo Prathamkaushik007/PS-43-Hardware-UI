@@ -211,3 +211,38 @@ export function stopSpeaking(): void {
 export function isSpeaking(): boolean {
   return Boolean(currentUtterance && typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking);
 }
+
+export function playInstructionAudio(type: 'video' | 'audio', lang: 'en' | 'hi', fallbackText: string, onEnd: () => void): () => void {
+  const audio = new Audio(`/audio/${type}_instruction_${lang}.mp3`);
+  let isCancelled = false;
+  
+  const handleEnd = () => {
+    if (isCancelled) return;
+    audio.removeEventListener('ended', handleEnd);
+    audio.removeEventListener('error', handleError);
+    onEnd();
+  };
+
+  const handleError = () => {
+    if (isCancelled) return;
+    console.warn(`Failed to play pre-recorded audio for ${type} in ${lang}. Falling back to TTS.`);
+    audio.removeEventListener('ended', handleEnd);
+    audio.removeEventListener('error', handleError);
+    speakText(fallbackText, lang, () => {
+      if (!isCancelled) onEnd();
+    });
+  };
+
+  audio.addEventListener('ended', handleEnd);
+  audio.addEventListener('error', handleError);
+  
+  audio.play().catch(handleError);
+
+  return () => {
+    isCancelled = true;
+    audio.pause();
+    audio.removeEventListener('ended', handleEnd);
+    audio.removeEventListener('error', handleError);
+    stopSpeaking();
+  };
+}

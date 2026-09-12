@@ -513,13 +513,13 @@ body {
 
 /* Audio Card Styles */
 .kiosk-card-audio {
-  background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 60%, #1e40af 100%);
+  background: linear-gradient(145deg, #1864df 0%, #0F52BA 60%, #0b3e8c 100%);
   border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .kiosk-card-audio:hover, .kiosk-card-audio:focus-visible {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 28px 50px -10px rgba(37, 99, 235, 0.55), 0 0 35px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 28px 50px -10px rgba(15, 82, 186, 0.55), 0 0 35px rgba(15, 82, 186, 0.3);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
@@ -602,6 +602,15 @@ body {
   color: rgba(255, 255, 255, 0.7);
   margin-top: 10px;
   font-weight: 600;
+}
+
+.video-indicator-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #c20a0a 0%, #8B0000 60%, #5c0000 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 /* Feature Highlights Bar */

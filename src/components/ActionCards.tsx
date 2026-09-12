@@ -48,6 +48,7 @@ export const ActionCards: React.FC<ActionCardsProps> = ({
         <p className="card-subtitle">{t.videoSubtitle}</p>
 
         <div className="card-action-pill">
+          <span className="video-indicator-dot"></span>
           <span>{t.videoActionBtn}</span>
         </div>
 

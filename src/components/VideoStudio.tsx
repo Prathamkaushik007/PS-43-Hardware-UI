@@ -3,7 +3,7 @@ import { Camera, Square, X, RefreshCw, Send, AlertCircle, Mic, Volume2 } from 'l
 import { translations } from '../data/translations';
 import type { Language } from '../data/translations';
 import { useSpeechRecognition } from '../utils/useSpeechRecognition';
-import { playBeep, playKioskClick } from '../utils/audioSystem';
+import { playBeep, playKioskClick, playInstructionAudio } from '../utils/audioSystem';
 
 interface VideoStudioProps {
   lang: Language;
@@ -17,10 +17,13 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   onCancel,
 }) => {
   const t = translations[lang];
+  const [preRecordState, setPreRecordState] = useState<'INFO' | 'COUNTDOWN' | null>('INFO');
+  const [countdown, setCountdown] = useState<number>(3);
   const [secondsRemaining, setSecondsRemaining] = useState<number>(60);
-  const [isRecording, setIsRecording] = useState<boolean>(true);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
   const [hasWebcam, setHasWebcam] = useState<boolean>(false);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const hasPlayedIntroRef = useRef<boolean>(false);
   const [isMirrored, setIsMirrored] = useState<boolean>(() => {
     const saved = localStorage.getItem('kiosk_camera_mirrored');
     return saved !== null ? saved === 'true' : true;
@@ -40,8 +43,40 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  // Speech-to-text hook with continuous listening
   const { transcript, isRecognizing } = useSpeechRecognition(isRecording, lang);
+
+  // Pre-recording Flow (Instruction Audio & Countdown)
+  useEffect(() => {
+    let unmounted = false;
+    let cleanupAudio: (() => void) | undefined;
+    
+    if (preRecordState === 'INFO') {
+      if (!hasPlayedIntroRef.current) {
+        hasPlayedIntroRef.current = true;
+        cleanupAudio = playInstructionAudio('video', lang, t.videoInfoText, () => {
+          if (!unmounted) setPreRecordState('COUNTDOWN');
+        });
+      }
+    } else if (preRecordState === 'COUNTDOWN') {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setPreRecordState(null);
+            setIsRecording(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+    
+    return () => {
+      unmounted = true;
+      if (cleanupAudio) cleanupAudio();
+    };
+  }, [preRecordState, lang, t.videoInfoText]);
 
   // Initialize webcam & microphone
   useEffect(() => {
@@ -96,7 +131,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
             setRecordedUrl(url);
           };
 
-          recorder.start(500);
+          // We defer starting the recorder until isRecording becomes true
         } catch (recErr) {
           console.warn('MediaRecorder error:', recErr);
         }
@@ -124,13 +159,25 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
 
   // Re-sync video element whenever hasWebcam or isRecording updates
   useEffect(() => {
-    if (hasWebcam && isRecording && videoRef.current && streamRef.current) {
+    if (hasWebcam && videoRef.current && streamRef.current) {
       if (videoRef.current.srcObject !== streamRef.current) {
         videoRef.current.srcObject = streamRef.current;
       }
       videoRef.current.play().catch(() => {});
     }
   }, [hasWebcam, isRecording]);
+
+  // Start MediaRecorder when preRecordState becomes null (transition to RECORDING)
+  useEffect(() => {
+    if (isRecording && mediaRecorderRef.current && mediaRecorderRef.current.state === 'inactive') {
+      try {
+        chunksRef.current = [];
+        mediaRecorderRef.current.start(500);
+      } catch (e) {
+        console.warn('Failed to start recorder on transition:', e);
+      }
+    }
+  }, [isRecording]);
 
   // 60-second countdown timer
   useEffect(() => {
@@ -253,8 +300,25 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
 
         {/* Video Screen Area */}
         <div className="video-stage">
-          {/* Flip / Mirror Button for instant one-click toggle */}
-          <button
+          {preRecordState === 'INFO' ? (
+            <div className="simulated-camera" style={{ display: 'flex', flexDirection: 'column', padding: '40px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', marginBottom: '20px', textAlign: 'center' }}>
+                Instructions
+              </div>
+              <div style={{ fontSize: '18px', color: '#cbd5e1', textAlign: 'center', whiteSpace: 'pre-line', lineHeight: '1.6' }}>
+                {t.videoInfoText}
+              </div>
+            </div>
+          ) : preRecordState === 'COUNTDOWN' ? (
+            <div className="simulated-camera" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontSize: '120px', fontWeight: 900, color: '#e11d48', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+                {countdown}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Flip / Mirror Button for instant one-click toggle */}
+              <button
             className="btn-flip-camera"
             onClick={toggleMirror}
             title="Toggle Horizontal Flip (Mirror / Normal) [Key: F]"
@@ -324,6 +388,8 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
               </div>
             )
           )}
+          </>
+          )}
         </div>
 
         {/* Live Speech Recognition Transcript */}
@@ -351,7 +417,12 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
 
         {/* Control Buttons */}
         <div className="studio-controls">
-          {isRecording ? (
+          {preRecordState !== null ? (
+            <button className="btn-ctrl btn-ctrl-cancel" onClick={onCancel} title="Cancel (Key: C)">
+              <X size={18} />
+              <span>{t.cancel}</span>
+            </button>
+          ) : isRecording ? (
             <>
               <button className="btn-ctrl btn-ctrl-cancel" onClick={onCancel} title="Cancel recording (Key: C)">
                 <X size={18} />

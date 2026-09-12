@@ -67,6 +67,10 @@ export interface TranslationStrings {
   videoStartTTS: string;
   audioStartTTS: string;
   submittedTTS: string;
+
+  // Pre-recording Instructions
+  videoInfoText: string;
+  audioInfoText: string;
 }
 
 export const translations: Record<Language, TranslationStrings> = {
@@ -83,7 +87,7 @@ export const translations: Record<Language, TranslationStrings> = {
     videoBadge: 'CAMERA RECORDING',
     videoTitle: 'VIDEO',
     videoSubtitle: 'Record with Camera',
-    videoActionBtn: '🔴 Press 1 Button',
+    videoActionBtn: 'Press 1 Button',
     videoKeyHint: 'Or press [V] on Keypad',
 
     audioBadge: 'VOICE ONLY',
@@ -129,7 +133,10 @@ export const translations: Record<Language, TranslationStrings> = {
     welcomeTTS: 'Welcome to the Public Grievance Kiosk. To submit your complaint without typing, press the red Video button on the left or the blue Audio button on the right. You can also press key V for video or key A for audio.',
     videoStartTTS: 'Camera recording has started. Please look directly at the screen and speak your complaint clearly. Press Stop when finished.',
     audioStartTTS: 'Microphone is recording. Please speak your complaint clearly into the microphone. Press Stop when finished.',
-    submittedTTS: 'Your grievance has been submitted successfully. Please collect your printed receipt or scan the QR code to track your issue.'
+    submittedTTS: 'Your grievance has been submitted successfully. Please collect your printed receipt or scan the QR code to track your issue.',
+
+    videoInfoText: 'Please explain your problem clearly in front of the camera.\nYou have a maximum of 1 minute.\nYour recording will start automatically after the countdown.',
+    audioInfoText: 'Please clearly explain your problem.\nSpeak slowly and clearly.\nYou have a maximum of 1 minute.\nYour recording will start automatically after the countdown.'
   },
   hi: {
     kioskTitle: 'जन सेवा केंद्र',
@@ -144,7 +151,7 @@ export const translations: Record<Language, TranslationStrings> = {
     videoBadge: 'कैमरा रिकॉर्डिंग',
     videoTitle: 'वीडियो',
     videoSubtitle: 'कैमरा से रिकॉर्ड करें',
-    videoActionBtn: '🔴 1 नंबर बटन दबाएं',
+    videoActionBtn: '1 नंबर बटन दबाएं',
     videoKeyHint: 'या कीपैड पर [V] दबाएं',
 
     audioBadge: 'केवल आवाज़',
@@ -190,6 +197,9 @@ export const translations: Record<Language, TranslationStrings> = {
     welcomeTTS: 'जन सेवा केंद्र में आपका स्वागत है। बिना लिखे शिकायत दर्ज करने के लिए बाईं ओर लाल वीडियो बटन दबाएं या दाईं ओर नीला ऑडियो बटन दबाएं। आप कीबोर्ड पर वी या ए बटन भी दबा सकते हैं।',
     videoStartTTS: 'कैमरा रिकॉर्डिंग शुरू हो गई है। कृपया स्क्रीन की तरफ देखकर अपनी समस्या स्पष्ट बोलें। पूरा होने पर स्टॉप बटन दबाएं।',
     audioStartTTS: 'माइक रिकॉर्डिंग शुरू हो गई है। कृपया अपनी समस्या साफ-साफ बोलें। पूरा होने पर स्टॉप बटन दबाएं।',
-    submittedTTS: 'आपकी शिकायत सफलतापूर्वक दर्ज हो गई है। कृपया अपनी रसीद प्राप्त करें या क्यूआर कोड स्कैन करें।'
+    submittedTTS: 'आपकी शिकायत सफलतापूर्वक दर्ज हो गई है। कृपया अपनी रसीद प्राप्त करें या क्यूआर कोड स्कैन करें।',
+
+    videoInfoText: 'कृपया कैमरे के सामने अपनी समस्या स्पष्ट रूप से समझाएं।\nआपके पास अधिकतम 1 मिनट का समय है।\nकाउंटडाउन के बाद आपकी रिकॉर्डिंग अपने आप शुरू हो जाएगी।',
+    audioInfoText: 'कृपया अपनी समस्या स्पष्ट रूप से समझाएं।\nधीरे और साफ बोलें।\nआपके पास अधिकतम 1 मिनट का समय है।\nकाउंटडाउन के बाद आपकी रिकॉर्डिंग अपने आप शुरू हो जाएगी।'
   }
 };
