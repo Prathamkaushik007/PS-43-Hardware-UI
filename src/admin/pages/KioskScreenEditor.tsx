@@ -128,7 +128,7 @@ export function KioskScreenEditor() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => navigate('/admin/kiosks')} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>
+          <button onClick={() => navigate('/admin/kiosks')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
             <ArrowLeft size={24} />
           </button>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Editor: {kioskId}</h2>
@@ -143,7 +143,7 @@ export function KioskScreenEditor() {
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={handleSaveDraft} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '0.25rem', border: 'none', backgroundColor: '#374151', color: 'white', cursor: 'pointer' }}>
+          <button onClick={handleSaveDraft} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '0.25rem', border: '1px solid var(--border-subtle)', backgroundColor: 'transparent', color: 'var(--text-primary)', cursor: 'pointer' }}>
             <Save size={16} /> Save Draft
           </button>
           <button onClick={handlePublish} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '0.25rem', border: 'none', backgroundColor: '#059669', color: 'white', cursor: 'pointer' }}>
@@ -157,24 +157,24 @@ export function KioskScreenEditor() {
 
       <div style={{ display: 'flex', gap: '2rem', flex: 1, overflow: 'hidden' }}>
         {/* Editor Form */}
-        <div style={{ flex: '1', backgroundColor: '#1f2937', padding: '1.5rem', borderRadius: '0.5rem', overflowY: 'auto' }}>
+        <div style={{ flex: '1', backgroundColor: 'var(--bg-card-dark)', padding: '1.5rem', borderRadius: '0.5rem', overflowY: 'auto' }}>
           
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>Headings</h3>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>Headings</h3>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem', color: '#9ca3af' }}>Heading (English)</label>
-                <input type="text" value={draftConfig.heading.en} onChange={(e) => setDraftConfig(prev => ({ ...prev, heading: { ...prev.heading, en: e.target.value } }))} style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #4b5563', backgroundColor: '#374151', color: 'white', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Heading (English)</label>
+                <input type="text" value={draftConfig.heading.en} onChange={(e) => setDraftConfig(prev => ({ ...prev, heading: { ...prev.heading, en: e.target.value } }))} style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-kiosk)', color: 'var(--text-primary)', boxSizing: 'border-box' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem', color: '#9ca3af' }}>Heading (Hindi)</label>
-                <input type="text" value={draftConfig.heading.hi} onChange={(e) => setDraftConfig(prev => ({ ...prev, heading: { ...prev.heading, hi: e.target.value } }))} style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #4b5563', backgroundColor: '#374151', color: 'white', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Heading (Hindi)</label>
+                <input type="text" value={draftConfig.heading.hi} onChange={(e) => setDraftConfig(prev => ({ ...prev, heading: { ...prev.heading, hi: e.target.value } }))} style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-kiosk)', color: 'var(--text-primary)', boxSizing: 'border-box' }} />
               </div>
             </div>
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #374151', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Screen Options</h3>
               <button onClick={addOption} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', fontSize: '0.875rem' }}>
                 <Plus size={14} /> Add Option
@@ -182,7 +182,7 @@ export function KioskScreenEditor() {
             </div>
             
             {draftConfig.options.map((opt, index) => (
-              <div key={opt.id} style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '0.25rem', marginBottom: '1rem', position: 'relative' }}>
+              <div key={opt.id} style={{ backgroundColor: 'var(--border-subtle)', padding: '1rem', borderRadius: '0.25rem', marginBottom: '1rem', position: 'relative' }}>
                 <div style={{ position: 'absolute', right: '0.5rem', top: '0.5rem', display: 'flex', gap: '0.5rem' }}>
                   <button onClick={() => moveOption(index, -1)} disabled={index === 0} style={{ background: 'none', border: 'none', color: index === 0 ? '#4b5563' : 'white', cursor: index === 0 ? 'default' : 'pointer' }}><ChevronUp size={16} /></button>
                   <button onClick={() => moveOption(index, 1)} disabled={index === draftConfig.options.length - 1} style={{ background: 'none', border: 'none', color: index === draftConfig.options.length - 1 ? '#4b5563' : 'white', cursor: index === draftConfig.options.length - 1 ? 'default' : 'pointer' }}><ChevronDown size={16} /></button>
@@ -191,19 +191,19 @@ export function KioskScreenEditor() {
 
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem', marginTop: '1rem' }}>
                   <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Title (EN)</label>
-                    <input type="text" value={opt.title.en} onChange={(e) => updateOption(index, 'title', 'en', e.target.value)} style={{ width: '100%', padding: '0.4rem', borderRadius: '0.25rem', border: '1px solid #4b5563', backgroundColor: '#1f2937', color: 'white', boxSizing: 'border-box', fontSize: '0.875rem' }} />
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Title (EN)</label>
+                    <input type="text" value={opt.title.en} onChange={(e) => updateOption(index, 'title', 'en', e.target.value)} style={{ width: '100%', padding: '0.4rem', borderRadius: '0.25rem', border: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-kiosk)', color: 'var(--text-primary)', boxSizing: 'border-box', fontSize: '0.875rem' }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Title (HI)</label>
-                    <input type="text" value={opt.title.hi} onChange={(e) => updateOption(index, 'title', 'hi', e.target.value)} style={{ width: '100%', padding: '0.4rem', borderRadius: '0.25rem', border: '1px solid #4b5563', backgroundColor: '#1f2937', color: 'white', boxSizing: 'border-box', fontSize: '0.875rem' }} />
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Title (HI)</label>
+                    <input type="text" value={opt.title.hi} onChange={(e) => updateOption(index, 'title', 'hi', e.target.value)} style={{ width: '100%', padding: '0.4rem', borderRadius: '0.25rem', border: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-kiosk)', color: 'var(--text-primary)', boxSizing: 'border-box', fontSize: '0.875rem' }} />
                   </div>
                 </div>
                 
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                   <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Action Type</label>
-                    <select value={opt.actionType} onChange={(e) => updateOption(index, 'actionType', null, e.target.value)} style={{ width: '100%', padding: '0.4rem', borderRadius: '0.25rem', border: '1px solid #4b5563', backgroundColor: '#1f2937', color: 'white', boxSizing: 'border-box', fontSize: '0.875rem' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Action Type</label>
+                    <select value={opt.actionType} onChange={(e) => updateOption(index, 'actionType', null, e.target.value)} style={{ width: '100%', padding: '0.4rem', borderRadius: '0.25rem', border: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-kiosk)', color: 'var(--text-primary)', boxSizing: 'border-box', fontSize: '0.875rem' }}>
                       <option value="NONE">None</option>
                       <option value="VIDEO">Video Recording</option>
                       <option value="AUDIO">Audio Recording</option>
@@ -217,14 +217,14 @@ export function KioskScreenEditor() {
               </div>
             ))}
             {draftConfig.options.length === 0 && (
-              <p style={{ color: '#9ca3af', fontSize: '0.875rem', textAlign: 'center', padding: '1rem' }}>No options added. Add one above.</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', padding: '1rem' }}>No options added. Add one above.</p>
             )}
           </div>
         </div>
 
         {/* Live Preview Pane */}
-        <div style={{ flex: '1', backgroundColor: '#000', borderRadius: '0.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', border: '2px solid #374151' }}>
-          <div style={{ position: 'absolute', top: '1rem', left: '1rem', padding: '0.25rem 0.5rem', backgroundColor: '#374151', color: '#9ca3af', fontSize: '0.75rem', borderRadius: '0.25rem', zIndex: 10 }}>Live Preview</div>
+        <div style={{ flex: '1', backgroundColor: '#000', borderRadius: '0.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', border: '2px solid var(--border-subtle)' }}>
+          <div style={{ position: 'absolute', top: '1rem', left: '1rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--border-subtle)', color: 'var(--text-muted)', fontSize: '0.75rem', borderRadius: '0.25rem', zIndex: 10 }}>Live Preview</div>
           
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fbbf24', marginBottom: '0.5rem', textAlign: 'center' }}>{draftConfig.heading.en}</h1>

@@ -16,8 +16,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export function AdminApp() {
   return (
     <Routes>
-      <Route path="/login" element={<AdminLogin />} />
-      <Route path="/" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+      <Route path="login" element={<AdminLogin />} />
+      <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="kiosks" element={<KioskManagement />} />
         <Route path="kiosks/:kioskId/editor" element={<KioskScreenEditor />} />

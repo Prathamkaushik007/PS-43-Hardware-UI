@@ -18,7 +18,7 @@ import type { GrievanceTicket } from './utils/aiClassifier';
 import { speakText, stopSpeaking, isSpeaking as checkIsSpeaking, playKioskClick } from './utils/audioSystem';
 import { saveGrievanceToLocalDB, getLocalGrievancesCount } from './utils/grievanceStorage';
 
-export function App() {
+export function App({ hideAdminButton = false }: { hideAdminButton?: boolean }) {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('kiosk_theme');
@@ -182,6 +182,7 @@ export function App() {
         onThemeToggle={handleThemeToggle}
         onRecordsClick={() => setActiveMode('RECORDS')}
         recordsCount={recordsCount}
+        hideAdminButton={hideAdminButton}
       />
 
       {/* Prominent Gold Instructions Pill */}

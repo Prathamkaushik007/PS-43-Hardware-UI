@@ -1,13 +1,24 @@
+export type KioskStatus = 'online' | 'offline' | 'maintenance';
+
 export type Kiosk = {
   id: string;
   kioskId: string;
+  kiosk_code?: string;
   name: string;
+  kiosk_name?: string;
   location?: string;
   description?: string;
-  status: 'online' | 'offline';
+  status: KioskStatus;
   active: boolean;
+  is_active?: boolean;
+  configuration?: Record<string, any>;
   lastSeen?: string;
+  last_seen?: string;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
 };
+
 
 export type ScreenOption = {
   id: string;
