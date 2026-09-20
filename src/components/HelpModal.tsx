@@ -52,8 +52,8 @@ export const HelpModal: React.FC<HelpModalProps> = ({ lang, onClose }) => {
             </div>
             <div className="step-desc">
               {isHi
-                ? 'कैमरे या माइक के सामने स्पष्ट भाषा (हिंदी या अंग्रेजी) में समस्या, स्थान और मुख्य शिकायत बताएं (अधिकतम 1 मिनट)।'
-                : 'State your issue, street/ward location, and details clearly in Hindi or English (maximum 60 seconds).'}
+                ? 'कैमरे या माइक के सामने स्पष्ट भाषा (हिंदी या अंग्रेजी) में समस्या, स्थान और मुख्य शिकायत बताएं (अधिकतम 5 मिनट)।'
+                : 'State your issue, street/ward location, and details clearly in Hindi or English (maximum 5 minutes).'}
             </div>
           </div>
 

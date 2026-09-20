@@ -1,4 +1,5 @@
-import { Volume2, HelpCircle, Sun, Moon, Database } from 'lucide-react';
+import { Volume2, HelpCircle, Sun, Moon, Database, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { translations } from '../data/translations';
 import type { Language } from '../data/translations';
 import { playKioskClick } from '../utils/audioSystem';
@@ -15,6 +16,7 @@ interface HeaderProps {
   onThemeToggle: () => void;
   onRecordsClick: () => void;
   recordsCount?: number;
+  hideAdminButton?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,8 +29,10 @@ export const Header: React.FC<HeaderProps> = ({
   onThemeToggle,
   onRecordsClick,
   recordsCount = 0,
+  hideAdminButton = false,
 }) => {
   const t = translations[lang];
+  const navigate = useNavigate();
 
   return (
     <header className="kiosk-header">
@@ -143,6 +147,26 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <HelpCircle size={20} />
         </button>
+        {/* Admin Panel Button */}
+        {!hideAdminButton && (
+          <button
+            className="btn-admin"
+            onClick={() => {
+              playKioskClick();
+              navigate('/admin/login');
+            }}
+            title="Admin Panel"
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', 
+              background: 'none', border: '1px solid #4b5563', color: 'inherit',
+              padding: '0.4rem 0.75rem', borderRadius: '0.25rem', cursor: 'pointer',
+              marginLeft: '0.5rem'
+            }}
+          >
+            <Settings size={18} />
+            <span style={{ fontSize: '0.875rem' }}>Admin Panel</span>
+          </button>
+        )}
       </div>
     </header>
   );

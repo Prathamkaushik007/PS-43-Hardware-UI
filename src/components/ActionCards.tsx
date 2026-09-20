@@ -51,9 +51,7 @@ export const ActionCards: React.FC<ActionCardsProps> = ({
           <span>{t.videoActionBtn}</span>
         </div>
 
-        <div className="card-keypad-hint">
-          {t.videoKeyHint}
-        </div>
+
       </div>
 
       {/* AUDIO CARD (BLUE) */}
@@ -88,9 +86,7 @@ export const ActionCards: React.FC<ActionCardsProps> = ({
           <span>{t.audioActionBtn}</span>
         </div>
 
-        <div className="card-keypad-hint">
-          {t.audioKeyHint}
-        </div>
+
       </div>
     </div>
   );

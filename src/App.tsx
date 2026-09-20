@@ -20,7 +20,7 @@ import { saveGrievanceToLocalDB, getLocalGrievancesCount } from './utils/grievan
 import type { CloudStorageMeta } from './utils/grievanceStorage';
 import { uploadVideoToR2 } from './services/r2Upload';
 
-export function App() {
+export function App({ hideAdminButton = false }: { hideAdminButton?: boolean }) {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('kiosk_theme');
@@ -257,6 +257,7 @@ export function App() {
         onThemeToggle={handleThemeToggle}
         onRecordsClick={() => setActiveMode('RECORDS')}
         recordsCount={recordsCount}
+        hideAdminButton={hideAdminButton}
       />
 
       {/* Prominent Gold Instructions Pill */}
