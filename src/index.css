@@ -96,12 +96,9 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 18px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  background: transparent;
+  border: none;
+  box-shadow: none;
   margin-bottom: 24px;
 }
 
@@ -114,13 +111,11 @@ body {
 .emblem-box {
   width: 50px;
   height: 50px;
-  background: #1c1917;
-  border: 1.5px solid rgba(245, 158, 11, 0.4);
-  border-radius: 14px;
+  background: transparent;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.15);
   color: #f59e0b;
 }
 
@@ -211,7 +206,7 @@ body {
   border: 1px solid rgba(245, 158, 11, 0.35);
   color: #fbbf24;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 0;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -242,9 +237,9 @@ body {
 .lang-switcher {
   display: flex;
   align-items: center;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   padding: 3px;
 }
 
@@ -255,7 +250,7 @@ body {
   color: #94a3b8;
   font-size: 13px;
   font-weight: 700;
-  border-radius: 9px;
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -270,10 +265,10 @@ body {
 .btn-help {
   width: 40px;
   height: 40px;
-  background: rgba(225, 29, 72, 0.12);
-  border: 1px solid rgba(225, 29, 72, 0.4);
+  background: transparent;
+  border: none;
   color: #f43f5e;
-  border-radius: 12px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -284,8 +279,8 @@ body {
 }
 
 .btn-help:hover {
-  background: rgba(225, 29, 72, 0.25);
-  border-color: #f43f5e;
+  background: transparent;
+  border-color: transparent;
   transform: scale(1.05);
 }
 
@@ -294,11 +289,11 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: transparent;
+  border: none;
   color: #38bdf8;
   padding: 8px 13px;
-  border-radius: 12px;
+  border-radius: 0;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -306,22 +301,22 @@ body {
 }
 
 .btn-records:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: #38bdf8;
+  background: transparent;
+  border-color: transparent;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+  box-shadow: none;
 }
 
 [data-theme="light"] .btn-records {
-  background: rgba(224, 242, 254, 0.75);
-  border-color: rgba(2, 132, 199, 0.4);
+  background: transparent;
+  border-color: transparent;
   color: #0284c7;
 }
 
 [data-theme="light"] .btn-records:hover {
-  background: #e0f2fe;
-  border-color: #0284c7;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 /* Theme Toggle Button (Moon / Sun Switcher) */
@@ -329,13 +324,13 @@ body {
   position: relative;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid var(--border-subtle);
-  background: rgba(30, 41, 59, 0.7);
+  border: none;
+  background: transparent;
   color: var(--text-primary);
   overflow: hidden;
   user-select: none;
@@ -355,28 +350,28 @@ body {
 
 /* Dark theme button state (moon glowing in night sky) */
 .btn-theme-toggle.dark {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(56, 189, 248, 0.35);
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .btn-theme-toggle.dark:hover {
-  background: rgba(56, 189, 248, 0.16);
-  border-color: #38bdf8;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 /* Light theme button state (sun radiant warmth) */
 .btn-theme-toggle.light {
-  background: rgba(254, 243, 199, 0.8);
-  border-color: rgba(245, 158, 11, 0.5);
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .btn-theme-toggle.light:hover {
-  background: #fef3c7;
-  border-color: #f59e0b;
-  box-shadow: 0 0 22px rgba(245, 158, 11, 0.5);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 /* Theme Icon Box for layered SVG morph */
@@ -481,7 +476,7 @@ body {
 
 .kiosk-card {
   position: relative;
-  border-radius: 28px;
+  border-radius: 0;
   padding: 38px 24px 28px;
   display: flex;
   flex-direction: column;
@@ -548,7 +543,7 @@ body {
 .card-icon-wrapper {
   width: 110px;
   height: 110px;
-  border-radius: 24px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.12);
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   display: flex;
@@ -660,7 +655,7 @@ body {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: 0;
   font-size: 12px;
   color: var(--text-secondary);
 }
@@ -683,7 +678,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f8fafc;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 11px;
   font-family: monospace;
   font-weight: 700;
@@ -730,7 +725,7 @@ body {
   max-width: 860px;
   background: #0f172a;
   border: 1.5px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(37, 99, 235, 0.15);
   display: flex;
@@ -786,7 +781,7 @@ body {
   color: #f8fafc;
   background: #1e293b;
   padding: 4px 14px;
-  border-radius: 10px;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -893,7 +888,7 @@ body {
   position: absolute;
   inset: 20px 40px;
   border: 2px dashed rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
+  border-radius: 0;
   pointer-events: none;
   display: flex;
   align-items: flex-start;
@@ -907,7 +902,7 @@ body {
   font-size: 12px;
   font-weight: 600;
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 /* Audio Stage */
@@ -989,7 +984,7 @@ body {
   background: #090e1a;
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 0;
   color: #f1f5f9;
   font-size: 15px;
   line-height: 1.5;
@@ -1019,7 +1014,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  border-radius: 14px;
+  border-radius: 0;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -1070,7 +1065,7 @@ body {
   max-width: 580px;
   background: #ffffff;
   color: #0f172a;
-  border-radius: 20px;
+  border-radius: 0;
   padding: 28px;
   box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9);
   position: relative;
@@ -1101,7 +1096,7 @@ body {
   background: #eff6ff;
   display: inline-block;
   padding: 4px 16px;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1px solid #bfdbfe;
 }
 
@@ -1178,7 +1173,7 @@ body {
   background: #0f172a;
   color: #ffffff;
   padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: 0;
   border: none;
   font-weight: 700;
   cursor: pointer;
@@ -1198,7 +1193,7 @@ body {
   background: #10b981;
   color: #ffffff;
   padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: 0;
   border: none;
   font-weight: 700;
   cursor: pointer;
@@ -1226,7 +1221,7 @@ body {
   max-width: 620px;
   background: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
+  border-radius: 0;
   padding: 28px;
   color: #ffffff;
 }
@@ -1241,7 +1236,7 @@ body {
 .help-step-box {
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  border-radius: 0;
   padding: 16px;
 }
 
@@ -1316,9 +1311,9 @@ body {
 }
 
 [data-theme="light"] .kiosk-header {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(15, 23, 42, 0.09);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 [data-theme="light"] .header-main-title {
@@ -1370,8 +1365,8 @@ body {
 }
 
 [data-theme="light"] .lang-switcher {
-  background: #f1f5f9;
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: transparent;
+  border: none;
 }
 
 [data-theme="light"] .lang-btn {
@@ -1385,14 +1380,14 @@ body {
 }
 
 [data-theme="light"] .btn-help {
-  background: rgba(254, 226, 226, 0.65);
-  border: 1px solid rgba(225, 29, 72, 0.3);
+  background: transparent;
+  border: none;
   color: #e11d48;
 }
 
 [data-theme="light"] .btn-help:hover {
-  background: rgba(254, 226, 226, 1);
-  border-color: #e11d48;
+  background: transparent;
+  border-color: transparent;
 }
 
 [data-theme="light"] .prompt-pill {

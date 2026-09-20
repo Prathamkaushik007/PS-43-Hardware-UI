@@ -19,7 +19,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   const t = translations[lang];
   const [preRecordState, setPreRecordState] = useState<'INFO' | 'COUNTDOWN' | null>('INFO');
   const [countdown, setCountdown] = useState<number>(3);
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(60);
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(300);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [hasWebcam, setHasWebcam] = useState<boolean>(false);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
@@ -179,7 +179,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
     }
   }, [isRecording]);
 
-  // 60-second countdown timer
+  // 300-second countdown timer
   useEffect(() => {
     if (!isRecording) return;
 
@@ -214,7 +214,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   const handleRetake = () => {
     playKioskClick();
     setRecordedUrl(null);
-    setSecondsRemaining(60);
+    setSecondsRemaining(300);
     setIsRecording(true);
 
     if (streamRef.current) {

@@ -19,7 +19,7 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
   const t = translations[lang];
   const [preRecordState, setPreRecordState] = useState<'INFO' | 'COUNTDOWN' | null>('INFO');
   const [countdown, setCountdown] = useState<number>(3);
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(60);
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(300);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null);
   const hasPlayedIntroRef = useRef<boolean>(false);
@@ -271,7 +271,7 @@ export const AudioStudio: React.FC<AudioStudioProps> = ({
   const handleRetake = () => {
     playKioskClick();
     setRecordedAudioUrl(null);
-    setSecondsRemaining(60);
+    setSecondsRemaining(300);
     setIsRecording(true);
 
     if (streamRef.current) {

@@ -87,18 +87,18 @@ export const translations: Record<Language, TranslationStrings> = {
     videoBadge: 'CAMERA RECORDING',
     videoTitle: 'VIDEO',
     videoSubtitle: 'Record with Camera',
-    videoActionBtn: 'Press 1 Button',
+    videoActionBtn: 'Press [V] Button',
     videoKeyHint: 'Or press [V] on Keypad',
 
     audioBadge: 'VOICE ONLY',
     audioTitle: 'AUDIO',
     audioSubtitle: 'Speak your Problem',
-    audioActionBtn: '🎤 Microphone will start',
+    audioActionBtn: 'Press [A] Button',
     audioKeyHint: 'Or press [A] on Keypad',
 
     noTyping: 'No typing needed',
     speakComplaint: 'Speak your complaint',
-    maxDuration: 'Maximum 1 minute',
+    maxDuration: 'Maximum 5 minutes',
 
     hardwareStatus: 'Hardware Ready (Raspberry Pi 5)',
     keysMapped: 'Physical Keys mapped: V - Video, A - Audio, S - Stop, C - Cancel',
@@ -135,8 +135,8 @@ export const translations: Record<Language, TranslationStrings> = {
     audioStartTTS: 'Microphone is recording. Please speak your complaint clearly into the microphone. Press Stop when finished.',
     submittedTTS: 'Your grievance has been submitted successfully. Please collect your printed receipt or scan the QR code to track your issue.',
 
-    videoInfoText: 'Please explain your problem clearly in front of the camera.\nYou have a maximum of 1 minute.\nYour recording will start automatically after the countdown.',
-    audioInfoText: 'Please clearly explain your problem.\nSpeak slowly and clearly.\nYou have a maximum of 1 minute.\nYour recording will start automatically after the countdown.'
+    videoInfoText: 'Please explain your problem clearly in front of the camera.\nYou have a maximum of 5 minutes.\nYour recording will start automatically after the countdown.',
+    audioInfoText: 'Please clearly explain your problem.\nSpeak slowly and clearly.\nYou have a maximum of 5 minutes.\nYour recording will start automatically after the countdown.'
   },
   hi: {
     kioskTitle: 'जन सेवा केंद्र',
@@ -151,18 +151,18 @@ export const translations: Record<Language, TranslationStrings> = {
     videoBadge: 'कैमरा रिकॉर्डिंग',
     videoTitle: 'वीडियो',
     videoSubtitle: 'कैमरा से रिकॉर्ड करें',
-    videoActionBtn: '1 नंबर बटन दबाएं',
+    videoActionBtn: 'Press [V] Button',
     videoKeyHint: 'या कीपैड पर [V] दबाएं',
 
     audioBadge: 'केवल आवाज़',
     audioTitle: 'ऑडियो',
     audioSubtitle: 'अपनी समस्या बोलें',
-    audioActionBtn: '🎤 माइक शुरू होगा',
+    audioActionBtn: 'Press [A] Button',
     audioKeyHint: 'या कीपैड पर [A] दबाएं',
 
     noTyping: 'लिखने की जरूरत नहीं',
     speakComplaint: 'बोलकर शिकायत दर्ज करें',
-    maxDuration: 'अधिकतम 1 मिनट',
+    maxDuration: 'अधिकतम 5 मिनट',
 
     hardwareStatus: 'हार्डवेयर तैयार है (रास्पबेरी पाई 5)',
     keysMapped: 'भौतिक बटन: V - वीडियो, A - ऑडियो, S - रोकें, C - रद्द',
@@ -199,7 +199,7 @@ export const translations: Record<Language, TranslationStrings> = {
     audioStartTTS: 'माइक रिकॉर्डिंग शुरू हो गई है। कृपया अपनी समस्या साफ-साफ बोलें। पूरा होने पर स्टॉप बटन दबाएं।',
     submittedTTS: 'आपकी शिकायत सफलतापूर्वक दर्ज हो गई है। कृपया अपनी रसीद प्राप्त करें या क्यूआर कोड स्कैन करें।',
 
-    videoInfoText: 'कृपया कैमरे के सामने अपनी समस्या स्पष्ट रूप से समझाएं।\nआपके पास अधिकतम 1 मिनट का समय है।\nकाउंटडाउन के बाद आपकी रिकॉर्डिंग अपने आप शुरू हो जाएगी।',
-    audioInfoText: 'कृपया अपनी समस्या स्पष्ट रूप से समझाएं।\nधीरे और साफ बोलें।\nआपके पास अधिकतम 1 मिनट का समय है।\nकाउंटडाउन के बाद आपकी रिकॉर्डिंग अपने आप शुरू हो जाएगी।'
+    videoInfoText: 'कृपया कैमरे के सामने अपनी समस्या स्पष्ट रूप से समझाएं।\nआपके पास अधिकतम 5 मिनट का समय है।\nकाउंटडाउन के बाद आपकी रिकॉर्डिंग अपने आप शुरू हो जाएगी।',
+    audioInfoText: 'कृपया अपनी समस्या स्पष्ट रूप से समझाएं।\nधीरे और साफ बोलें।\nआपके पास अधिकतम 5 मिनट का समय है।\nकाउंटडाउन के बाद आपकी रिकॉर्डिंग अपने आप शुरू हो जाएगी।'
   }
 };

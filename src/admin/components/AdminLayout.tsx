@@ -1,18 +1,22 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, MonitorSmartphone, Settings, LogOut } from 'lucide-react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, MonitorSmartphone, Settings, LogOut, Users } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export function AdminLayout() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { signOut, profile } = useAuth();
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Kiosks', path: '/admin/kiosks', icon: MonitorSmartphone },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_auth');
-    navigate('/admin/login', { replace: true });
+  if (profile?.role === 'super_admin') {
+    navItems.push({ name: 'Admin Management', path: '/admin/management', icon: Users });
+  }
+
+  const handleLogout = async () => {
+    await signOut();
   };
 
   return (

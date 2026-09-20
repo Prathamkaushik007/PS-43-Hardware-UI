@@ -75,13 +75,17 @@ export function KioskManagement() {
   };
 
   const handleDelete = async (kiosk: Kiosk) => {
-    if (confirm(`Are you sure you want to delete ${kiosk.kioskId} (${kiosk.name})?`)) {
+    const code = kiosk.kioskId || kiosk.kiosk_code || '';
+    const name = kiosk.name || kiosk.kiosk_name || code;
+    if (confirm(`Are you sure you want to delete ${code} (${name})?`)) {
       try {
-        await configService.deleteKiosk(kiosk.kioskId);
-        showNotification(`${kiosk.kioskId} deleted successfully`);
+        setKiosks((prev) => prev.filter((k) => (k.kioskId !== code && k.kiosk_code !== code && k.id !== kiosk.id)));
+        await configService.deleteKiosk(code, kiosk.id);
+        showNotification(`${code} deleted successfully`);
         await loadKiosks();
       } catch (err: any) {
         alert(err.message || 'Failed to delete kiosk');
+        await loadKiosks();
       }
     }
   };
