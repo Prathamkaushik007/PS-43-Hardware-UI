@@ -175,6 +175,45 @@ export const RecordsModal: React.FC<RecordsModalProps> = ({
                       {rec.mediaType === 'VIDEO' ? <Video size={12} color="#f43f5e" /> : <Mic size={12} color="#38bdf8" />}
                       <span>{rec.mediaType}</span>
                     </span>
+                    {rec.mediaType === 'VIDEO' && (
+                      rec.uploaded ? (
+                        <span
+                          title={`Cloudflare R2 Key: ${rec.r2Key || 'uploaded'}`}
+                          style={{
+                            fontSize: '11px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            background: 'rgba(16, 185, 129, 0.15)',
+                            border: '1px solid rgba(16, 185, 129, 0.4)',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            color: '#34d399',
+                            fontWeight: 600,
+                          }}
+                        >
+                          ☁️ R2 Synced
+                        </span>
+                      ) : (
+                        <span
+                          title={rec.uploadError || 'Stored in local IndexedDB only'}
+                          style={{
+                            fontSize: '11px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            background: 'rgba(245, 158, 11, 0.15)',
+                            border: '1px solid rgba(245, 158, 11, 0.4)',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            color: '#fbbf24',
+                            fontWeight: 600,
+                          }}
+                        >
+                          💾 Local Only
+                        </span>
+                      )
+                    )}
                   </div>
 
                   <div style={{ fontSize: '11px', color: '#94a3b8' }}>

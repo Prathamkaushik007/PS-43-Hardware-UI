@@ -6,16 +6,20 @@ import type { Language } from '../data/translations';
 import type { GrievanceTicket } from '../utils/aiClassifier';
 import { playKioskClick, playSuccessChime, speakText } from '../utils/audioSystem';
 
+import type { CloudStorageMeta } from '../utils/grievanceStorage';
+
 interface ReceiptModalProps {
   lang: Language;
   ticket: GrievanceTicket;
   onClose: () => void;
+  uploadMeta?: CloudStorageMeta;
 }
 
 export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   lang,
   ticket,
   onClose,
+  uploadMeta,
 }) => {
   const t = translations[lang];
   const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -159,6 +163,34 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               "{ticket.summary}"
             </div>
           </div>
+
+          {ticket.mediaType === 'VIDEO' && (
+            <div className="receipt-item-full" style={{ marginTop: '2px' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                background: uploadMeta?.uploaded ? '#ecfdf5' : '#fffbeb',
+                border: `1px solid ${uploadMeta?.uploaded ? '#a7f3d0' : '#fde68a'}`,
+                color: uploadMeta?.uploaded ? '#065f46' : '#92400e'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>{uploadMeta?.uploaded ? '☁️ Cloudflare R2' : '💾 Local Storage'}</span>
+                  <span style={{ fontWeight: 700 }}>
+                    {uploadMeta?.uploaded ? 'Cloud Video Synced' : 'Saved Locally (Offline fallback)'}
+                  </span>
+                </div>
+                {uploadMeta?.r2Key && (
+                  <span style={{ fontFamily: 'monospace', fontSize: '10px', opacity: 0.85, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {uploadMeta.r2Key}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* QR Code and verification bar */}

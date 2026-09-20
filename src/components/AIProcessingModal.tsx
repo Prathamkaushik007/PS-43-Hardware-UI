@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles, CheckCircle, Cpu } from 'lucide-react';
+import { Sparkles, CheckCircle, Cpu, CloudUpload, HardDrive } from 'lucide-react';
 import { translations } from '../data/translations';
 import type { Language } from '../data/translations';
 
 interface AIProcessingModalProps {
   lang: Language;
   onComplete: () => void;
+  uploadStatus?: 'idle' | 'uploading' | 'success' | 'failed';
+  uploadMessage?: string;
+  mediaType?: 'VIDEO' | 'AUDIO';
 }
 
 export const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
   lang,
   onComplete,
+  uploadStatus,
+  uploadMessage,
+  mediaType,
 }) => {
   const t = translations[lang];
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -95,6 +101,54 @@ export const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
             );
           })}
         </div>
+
+        {/* Cloudflare R2 Upload Status Banner (for video recording) */}
+        {mediaType === 'VIDEO' && uploadStatus && uploadStatus !== 'idle' && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '12px',
+              fontWeight: 600,
+              background:
+                uploadStatus === 'success'
+                  ? 'rgba(16, 185, 129, 0.12)'
+                  : uploadStatus === 'failed'
+                  ? 'rgba(245, 158, 11, 0.12)'
+                  : 'rgba(56, 189, 248, 0.12)',
+              border:
+                uploadStatus === 'success'
+                  ? '1px solid rgba(16, 185, 129, 0.3)'
+                  : uploadStatus === 'failed'
+                  ? '1px solid rgba(245, 158, 11, 0.3)'
+                  : '1px solid rgba(56, 189, 248, 0.3)',
+              color:
+                uploadStatus === 'success'
+                  ? '#34d399'
+                  : uploadStatus === 'failed'
+                  ? '#fbbf24'
+                  : '#38bdf8',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {uploadStatus === 'uploading' && <CloudUpload size={16} className="pulse-dot" />}
+              {uploadStatus === 'success' && <CheckCircle size={16} />}
+              {uploadStatus === 'failed' && <HardDrive size={16} />}
+              <span>
+                {uploadStatus === 'uploading' && (lang === 'hi' ? 'क्लाउडफ्लेयर R2 पर वीडियो अपलोड हो रहा है...' : 'Uploading video to Cloudflare R2...')}
+                {uploadStatus === 'success' && (lang === 'hi' ? 'क्लाउडफ्लेयर R2: वीडियो सफलतापूर्वक अपलोड हुआ' : 'Cloudflare R2: Video upload successful')}
+                {uploadStatus === 'failed' && (uploadMessage || (lang === 'hi' ? 'स्थानीय स्तर पर सहेजा गया — क्लाउड अपलोड विफल' : 'Saved locally — cloud upload failed'))}
+              </span>
+            </div>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.8, letterSpacing: '0.5px' }}>
+              {uploadStatus === 'uploading' ? 'STREAMING' : uploadStatus === 'success' ? 'R2 CLOUD' : 'LOCAL IDB'}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

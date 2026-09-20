@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import type { Theme } from './components/Header';
 import { PromptBanner } from './components/PromptBanner';
@@ -17,6 +17,8 @@ import { classifyGrievanceSimulation } from './utils/aiClassifier';
 import type { GrievanceTicket } from './utils/aiClassifier';
 import { speakText, stopSpeaking, isSpeaking as checkIsSpeaking, playKioskClick } from './utils/audioSystem';
 import { saveGrievanceToLocalDB, getLocalGrievancesCount } from './utils/grievanceStorage';
+import type { CloudStorageMeta } from './utils/grievanceStorage';
+import { uploadVideoToR2 } from './services/r2Upload';
 
 export function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -32,7 +34,14 @@ export function App() {
     transcript: string;
     mediaType: 'VIDEO' | 'AUDIO';
     mediaUrl?: string | null;
+    mediaBlob?: Blob | null;
   } | null>(null);
+
+  // Cloudflare R2 upload state tracking
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'failed'>('idle');
+  const [uploadMeta, setUploadMeta] = useState<CloudStorageMeta | undefined>(undefined);
+  const [uploadMessage, setUploadMessage] = useState<string>('');
+  const uploadPromiseRef = useRef<Promise<CloudStorageMeta> | null>(null);
 
   // Sync theme with html root attribute and local storage
   useEffect(() => {
@@ -74,20 +83,77 @@ export function App() {
   }, []);
 
   // Handler when video recording finishes and citizen clicks submit
-  const handleVideoFinish = (transcript: string, videoUrl: string | null) => {
-    setPendingSubmission({ transcript, mediaType: 'VIDEO', mediaUrl: videoUrl });
+  const handleVideoFinish = (
+    transcript: string,
+    videoUrl: string | null,
+    videoBlob?: Blob | null
+  ) => {
+    setPendingSubmission({
+      transcript,
+      mediaType: 'VIDEO',
+      mediaUrl: videoUrl,
+      mediaBlob: videoBlob || null,
+    });
+    setUploadStatus('uploading');
+    setUploadMessage('');
+    setUploadMeta(undefined);
     setActiveMode('PROCESSING');
+
+    // Initiate direct upload to Cloudflare R2
+    if (videoBlob && videoBlob.size > 0) {
+      const p = (async (): Promise<CloudStorageMeta> => {
+        try {
+          const uploadResult = await uploadVideoToR2(videoBlob);
+          const meta: CloudStorageMeta = {
+            storage: 'cloudflare-r2',
+            r2Key: uploadResult.key,
+            uploaded: true,
+            uploadedAt: uploadResult.uploadedAt,
+          };
+          setUploadStatus('success');
+          setUploadMeta(meta);
+          return meta;
+        } catch (uploadErr: any) {
+          console.warn('Cloudflare R2 upload failed, fallback to local IDB:', uploadErr);
+          const meta: CloudStorageMeta = {
+            storage: 'local',
+            uploaded: false,
+            uploadError: uploadErr.message || 'Upload failed',
+          };
+          setUploadStatus('failed');
+          setUploadMessage(uploadErr.message || 'Saved locally — cloud upload failed');
+          setUploadMeta(meta);
+          return meta;
+        }
+      })();
+      uploadPromiseRef.current = p;
+    } else {
+      setUploadStatus('idle');
+      uploadPromiseRef.current = null;
+    }
   };
 
   // Handler when audio recording finishes and citizen clicks submit
   const handleAudioFinish = (transcript: string, audioUrl?: string | null) => {
     setPendingSubmission({ transcript, mediaType: 'AUDIO', mediaUrl: audioUrl || null });
+    setUploadStatus('idle');
+    setUploadMeta(undefined);
+    uploadPromiseRef.current = null;
     setActiveMode('PROCESSING');
   };
 
   // When AI analysis completes - classify and immediately save to local DB (IndexedDB + localStorage backup)
   const handleProcessingComplete = async () => {
     if (pendingSubmission) {
+      let finalMeta = uploadMeta;
+      if (uploadPromiseRef.current) {
+        try {
+          finalMeta = await uploadPromiseRef.current;
+        } catch {
+          // Handled within promise
+        }
+      }
+
       const ticket = classifyGrievanceSimulation(
         pendingSubmission.transcript,
         pendingSubmission.mediaType,
@@ -96,7 +162,12 @@ export function App() {
       setCurrentTicket(ticket);
 
       try {
-        await saveGrievanceToLocalDB(ticket, pendingSubmission.mediaUrl);
+        await saveGrievanceToLocalDB(
+          ticket,
+          pendingSubmission.mediaUrl,
+          finalMeta,
+          pendingSubmission.mediaBlob
+        );
         setRecordsCount(getLocalGrievancesCount());
       } catch (err) {
         console.error('Failed to save to local DB:', err);
@@ -112,6 +183,10 @@ export function App() {
     setActiveMode('IDLE');
     setCurrentTicket(null);
     setPendingSubmission(null);
+    setUploadStatus('idle');
+    setUploadMeta(undefined);
+    setUploadMessage('');
+    uploadPromiseRef.current = null;
     setRecordsCount(getLocalGrievancesCount());
   };
 
@@ -223,6 +298,9 @@ export function App() {
         <AIProcessingModal
           lang={lang}
           onComplete={handleProcessingComplete}
+          uploadStatus={uploadStatus}
+          uploadMessage={uploadMessage}
+          mediaType={pendingSubmission?.mediaType}
         />
       )}
 
@@ -232,6 +310,7 @@ export function App() {
           lang={lang}
           ticket={currentTicket}
           onClose={handleResetToHome}
+          uploadMeta={uploadMeta}
         />
       )}
 

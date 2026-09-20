@@ -7,7 +7,7 @@ import { playBeep, playKioskClick } from '../utils/audioSystem';
 
 interface VideoStudioProps {
   lang: Language;
-  onFinish: (transcript: string, videoBlobUrl: string | null) => void;
+  onFinish: (transcript: string, videoBlobUrl: string | null, videoBlob?: Blob | null) => void;
   onCancel: () => void;
 }
 
@@ -21,6 +21,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   const [isRecording, setIsRecording] = useState<boolean>(true);
   const [hasWebcam, setHasWebcam] = useState<boolean>(false);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isMirrored, setIsMirrored] = useState<boolean>(() => {
     const saved = localStorage.getItem('kiosk_camera_mirrored');
     return saved !== null ? saved === 'true' : true;
@@ -93,6 +94,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
           recorder.onstop = () => {
             const blob = new Blob(chunksRef.current, { type: 'video/webm' });
             const url = URL.createObjectURL(blob);
+            setRecordedBlob(blob);
             setRecordedUrl(url);
           };
 
@@ -167,6 +169,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
   const handleRetake = () => {
     playKioskClick();
     setRecordedUrl(null);
+    setRecordedBlob(null);
     setSecondsRemaining(60);
     setIsRecording(true);
 
@@ -185,6 +188,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
         };
         recorder.onstop = () => {
           const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+          setRecordedBlob(blob);
           setRecordedUrl(URL.createObjectURL(blob));
         };
         recorder.start(500);
@@ -196,7 +200,7 @@ export const VideoStudio: React.FC<VideoStudioProps> = ({
 
   const handleSubmit = () => {
     playKioskClick();
-    onFinish(transcript, recordedUrl);
+    onFinish(transcript, recordedUrl, recordedBlob);
   };
 
   // Keyboard shortcut listener inside modal

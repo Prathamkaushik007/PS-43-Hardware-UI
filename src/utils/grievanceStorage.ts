@@ -1,6 +1,14 @@
 import type { GrievanceTicket } from './aiClassifier';
 
-export interface StoredGrievance extends GrievanceTicket {
+export interface CloudStorageMeta {
+  storage?: 'cloudflare-r2' | 'local';
+  r2Key?: string;
+  uploaded?: boolean;
+  uploadedAt?: string;
+  uploadError?: string;
+}
+
+export interface StoredGrievance extends GrievanceTicket, CloudStorageMeta {
   mediaBlob?: Blob;
   mediaBlobUrl?: string | null;
   savedTimestamp: number;
@@ -38,12 +46,14 @@ function openDB(): Promise<IDBDatabase> {
 // Save a grievance ticket along with its recorded media to IndexedDB & localStorage
 export async function saveGrievanceToLocalDB(
   ticket: GrievanceTicket,
-  mediaUrl?: string | null
+  mediaUrl?: string | null,
+  uploadMeta?: CloudStorageMeta,
+  directBlob?: Blob | null
 ): Promise<void> {
-  let mediaBlob: Blob | undefined = undefined;
+  let mediaBlob: Blob | undefined = directBlob || undefined;
 
   // If a blob url was provided, fetch the binary blob so it can be saved persistently
-  if (mediaUrl) {
+  if (!mediaBlob && mediaUrl) {
     try {
       const res = await fetch(mediaUrl);
       if (res.ok) {
@@ -56,6 +66,11 @@ export async function saveGrievanceToLocalDB(
 
   const record: StoredGrievance = {
     ...ticket,
+    storage: uploadMeta?.storage || (uploadMeta?.uploaded ? 'cloudflare-r2' : 'local'),
+    r2Key: uploadMeta?.r2Key,
+    uploaded: uploadMeta?.uploaded ?? false,
+    uploadedAt: uploadMeta?.uploadedAt,
+    uploadError: uploadMeta?.uploadError,
     mediaBlob,
     savedTimestamp: Date.now(),
   };
@@ -91,6 +106,11 @@ export async function saveGrievanceToLocalDB(
         createdAt: ticket.createdAt,
         kioskLocation: ticket.kioskLocation,
         hasMedia: Boolean(mediaBlob),
+        storage: record.storage,
+        r2Key: record.r2Key,
+        uploaded: record.uploaded,
+        uploadedAt: record.uploadedAt,
+        uploadError: record.uploadError,
         savedTimestamp: Date.now(),
       },
       ...existing.filter(item => item.ticketId !== ticket.ticketId),
